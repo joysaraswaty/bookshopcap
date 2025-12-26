@@ -18,5 +18,5 @@ builder:
       configuration:
         archiveName: librarybookshop
         relativePaths: true
-        additionalFiles:
-          - xs-app.json
+        # additionalFiles:
+        #   - xs-app.json
