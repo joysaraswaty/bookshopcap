@@ -32,11 +32,19 @@ stages:
 #      - alias: 'mySystemAlias'
 #        credentialId: 'mySystemCredentialsId'
 
-#  Release:
-#    cfTargets:
-#      - org: 'myOrg'
-#        space: 'mySpace'
-#        apiEndpoint: 'https://'
-#        appName: 'myAppName'
-#        manifest: 'manifest.yml'
-#        credentialsId: 'myDeploymentCredentialsId'
+ Release:
+   cfTargets:
+     - org: 'e48af0eatrial_build-qa-udmt39c2'
+       space: 'QA_Space'
+       apiEndpoint: 'https://api.cf.us10-001.hana.ondemand.com'
+       appName: 'bookshopcap'
+       manifest: 'manifest.yml'
+       credentialsId: 'deploy2cf'
+       tmsUpload:  true
+
+
+tmsUpload:
+  nodename: "QA_NODE"
+  credentialsId: "ctms-key"
+
+
