@@ -156,7 +156,8 @@ modules:
 
     parameters:
       content:
-        instance:
+        # instance:
+        subaccount:
           existing_destinations_policy: update
           destinations:
 
