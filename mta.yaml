@@ -171,7 +171,7 @@ modules:
               # Without this → /odata/v4/catalog = 404 / 500
             - Name: srv-api
               Type: HTTP
-              ProxyType: Internet
+              # ProxyType: Internet
               Authentication: OAuth2UserTokenExchange
               URL: ~{srv-api/srv-url}
               TokenServiceInstanceName: bookshopcap-auth
