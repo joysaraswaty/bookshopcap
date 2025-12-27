@@ -170,7 +170,7 @@ modules:
               # 🔥 THIS IS THE CRITICAL ONE - New destination: srv-api
               # Without this → /odata/v4/catalog = 404 / 500
             - Name: srv-api
-              Type: HTTP
+              # Type: HTTP
               # ProxyType: Internet
               Authentication: OAuth2UserTokenExchange
               URL: ~{srv-api/srv-url}
