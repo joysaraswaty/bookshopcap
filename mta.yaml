@@ -3,6 +3,11 @@ ID: bookshopcap
 description: A simple CAP project.
 version: 1.0.0
 modules:
+
+  #########################################################
+  # 1️⃣ CAP SERVICE MODULE
+  # Exposes OData V4 service
+  #########################################################
   - name: bookshopcap-srv
     type: nodejs
     path: gen/srv
@@ -22,6 +27,11 @@ modules:
       disk-quota: 512M
     build-parameters:
       builder: npm-ci
+
+
+  #########################################################
+  # 2️⃣ HANA DB DEPLOYER
+  #########################################################    
   - name: bookshopcap-db-deployer
     type: hdb
     path: gen/db
@@ -29,6 +39,13 @@ modules:
       - name: bookshopcap-db
     parameters:
       buildpack: nodejs_buildpack
+
+
+
+  #########################################################
+  # 3️⃣ APPRouter (THIS IS THE ENTRY POINT)
+  # Browser → Approuter → CAP service
+  #########################################################    
   - name: bookshopcap
     type: approuter.nodejs
     path: app/router
@@ -39,18 +56,28 @@ modules:
           forwardAuthToken: true
           name: srv-api
           url: ~{srv-url}
+
       - name: bookshopcap-auth
       - name: bookshopcap-destination
       - name: bookshopcap-html5-runtime
+
     provides:
       - name: app-api
         properties:
           app-protocol: ${protocol}
           app-uri: ${default-uri}
+
     parameters:
       disk-quota: 256M
       keep-existing-routes: true
       memory: 128M
+
+
+
+  #########################################################
+  # 4️⃣ HTML5 APP DEPLOYER
+  # Pushes UI to HTML5 App Repo
+  #########################################################    
   - name: bookshopcap-app-deployer
     type: com.sap.application.content
     path: gen
@@ -69,6 +96,12 @@ modules:
             - librarybookshop.zip
           name: librarybookshop
           target-path: app/
+
+
+
+  #########################################################
+  # 5️⃣ UI MODULE (Fiori Elements App)
+  #########################################################        
   - name: librarybookshop
     type: html5
     path: app/bookshop
@@ -78,103 +111,171 @@ modules:
       commands:
         - npm install
         - npm run build:cf
-        - npm ci
-        - npm run build
+        # - npm ci
+        # - npm run build
       supported-platforms:
         []
 
+
+
+  #########################################################
+  # 6️⃣ DESTINATION CONTENT MODULE  (🔥 MOST IMPORTANT FIX)
+  # Creates destinations automatically in subaccount
+  #########################################################
   - name: bookshopcap-destinations
     type: com.sap.application.content
     requires:
+       # Used for OAuth token exchange
       - name: bookshopcap-auth
         parameters:
           service-key:
             name: bookshopcap-auth-key
+
+       # HTML5 repo destination        
       - name: bookshopcap-html5-repo-host
         parameters:
           service-key:
             name: bookshopcap-html5-repo-host-key
+
+        # 👇 Needed to access srv-url (~{srv-api/srv-url})
       - name: srv-api
+
+       # Target destination service
       - name: bookshopcap-destination
         parameters:
           content-target: true
+
     build-parameters:
       no-source: true
+
     parameters:
       content:
         instance:
           existing_destinations_policy: update
           destinations:
+
+              # UI5 CDN need to check                                       
+            - Name: ui5
+              Type: HTTP
+              ProxyType: Internet
+              Authentication: NoAuthentication
+              URL: https://ui5.sap.com
+              
+              # HTML5 Repo Host
             - Name: bookshopcap-html5-repository
               ServiceInstanceName: bookshopcap-html5-repo-host
               ServiceKeyName: bookshopcap-html5-repo-host-key
               sap.cloud.service: bookshopcap.service
-            - Name: bookshopcap-auth
+
+              # 🔥 THIS IS THE CRITICAL ONE - New destination: srv-api
+              # Without this → /odata/v4/catalog = 404 / 500
+            - Name: srv-api
+              Type: HTTP
+              ProxyType: Internet
               Authentication: OAuth2UserTokenExchange
-              ServiceInstanceName: bookshopcap-auth
-              ServiceKeyName: bookshopcap-auth-key
+              URL: ~{srv-api/srv-url}
+              TokenServiceInstanceName: bookshopcap-auth
+              TokenServiceKeyName: bookshopcap-auth-key
               sap.cloud.service: bookshopcap.service
+
+            #   # Need to check require or not
+            # - Name: bookshopcap-auth
+            #   Authentication: OAuth2UserTokenExchange
+            #   ServiceInstanceName: bookshopcap-auth
+            #   ServiceKeyName: bookshopcap-auth-key
+            #   sap.cloud.service: bookshopcap.service
+
+
+
+#########################################################
+# 7️⃣ RESOURCES (SERVICES)
+#########################################################
 resources:
+
   - name: bookshopcap-auth
     type: org.cloudfoundry.managed-service
     parameters:
+      # need to check 
       config:
         oauth2-configuration:
           redirect-uris:
             - https://*~{app-api/app-uri}/**
         tenant-mode: dedicated
         xsappname: bookshopcap-${org}-${space}
+        # End
+
       path: ./xs-security.json
       service: xsuaa
-      service-plan: application
+      service-plan: application  
+    # 
     requires:
       - name: app-api
+    # 
+
+
   - name: bookshopcap-db
     type: com.sap.xs.hdi-container
     parameters:
       service: hana
       service-plan: hdi-shared
+
   - name: bookshopcap-connectivity
     type: org.cloudfoundry.managed-service
     parameters:
       service: connectivity
       service-plan: lite
+
   - name: bookshopcap-destination
     type: org.cloudfoundry.managed-service
+    # 
     parameters:
-      config:
-        HTML5Runtime_enabled: false
-        init_data:
-          instance:
-            destinations:
-              - Authentication: NoAuthentication
-                Name: ui5
-                ProxyType: Internet
-                Type: HTTP
-                URL: https://ui5.sap.com
-            existing_destinations_policy: update
+    #   config:
+    #     HTML5Runtime_enabled: false
+    #     init_data:
+    #       instance:
+    #         destinations:
+    #           - Authentication: NoAuthentication
+    #             Name: ui5
+    #             ProxyType: Internet
+    #             Type: HTTP
+    #             URL: https://ui5.sap.com
+    #         existing_destinations_policy: update
+    #
       service: destination
       service-plan: lite
-    requires:
-      - name: srv-api
-        group: destinations
-        properties:
-          name: srv-api # must be used in xs-app.json as well
-          url: ~{srv-url}
-          forwardAuthToken: true
+     #
+    # requires:
+    #   - name: srv-api
+    #     group: destinations
+    #     properties:
+    #       name: srv-api # must be used in xs-app.json as well
+    #       url: ~{srv-url}
+    #       forwardAuthToken: true
+     #
+
+
   - name: bookshopcap-html5-repo-host
     type: org.cloudfoundry.managed-service
     parameters:
       service: html5-apps-repo
       service-plan: app-host
+
+
   - name: bookshopcap-html5-runtime
     type: org.cloudfoundry.managed-service
     parameters:
       service: html5-apps-repo
       service-plan: app-runtime
+
+
+
+#########################################################
+# 8️⃣ GLOBAL PARAMETERS
+#########################################################
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true
+  
 build-parameters:
   before-all:
     - builder: custom
