@@ -1,7 +1,6 @@
 
-
 {
-  "welcomeFile": "/index.html",
+  "welcomeFile": "librarybookshop",
   "authenticationMethod": "route",
   "routes": [
     {
