@@ -115,7 +115,13 @@ modules:
         # - npm run build
       supported-platforms:
         []
-
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          forwardAuthToken: true
+          name: srv-api
+          url: ~{srv-url}
 
 
   #########################################################

@@ -44,6 +44,15 @@
   "workspaces": [
     "app/*"
   ],
+  "odata":{
+    "version":"v4"
+  },
+  "services":{
+    "CatalogService":{
+       "kind": "OData", 
+       "path": "/odata/v4/catalog/"
+    }
+  },
   "sapux": [
     "app/bookshop"
   ]
