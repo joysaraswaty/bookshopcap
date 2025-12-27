@@ -154,12 +154,12 @@ modules:
           existing_destinations_policy: update
           destinations:
 
-              # UI5 CDN need to check                                       
-            - Name: ui5
-              Type: HTTP
-              ProxyType: Internet
-              Authentication: NoAuthentication
-              URL: https://ui5.sap.com
+            #   # UI5 CDN need to check                                       
+            # - Name: ui5
+            #   Type: HTTP
+            #   ProxyType: Internet
+            #   Authentication: NoAuthentication
+            #   URL: https://ui5.sap.com
               
               # HTML5 Repo Host
             - Name: bookshopcap-html5-repository
