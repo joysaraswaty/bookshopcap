@@ -1,7 +1,7 @@
 {
 	"_version": "1.76.0",
 	"sap.app": {
-		"id": "library.bookshop",
+		"id": "bookshopcap.librarybookshop",
 		"type": "application",
 		"i18n": {
 			"bundleUrl": "i18n/i18n.properties",
@@ -79,10 +79,7 @@
 			"i18n": {
 				"type": "sap.ui.model.resource.ResourceModel",
 				"settings": {
-					"bundleName": "library.bookshop.i18n.i18n",
-					"supportedLocales": [
-						""
-					]
+					"bundleName": "library.bookshop.i18n.i18n"
 				}
 			},
 			"": {

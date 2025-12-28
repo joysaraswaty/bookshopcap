@@ -46,31 +46,31 @@ modules:
   # 3️⃣ APPRouter (THIS IS THE ENTRY POINT)
   # Browser → Approuter → CAP service
   #########################################################    
-  - name: bookshopcap
-    type: approuter.nodejs
-    path: app/router
-    requires:
-      - name: srv-api
-        group: destinations
-        properties:
-          forwardAuthToken: true
-          name: srv-api
-          url: ~{srv-url}
+  # - name: bookshopcap
+  #   type: approuter.nodejs
+  #   path: app/router
+  #   requires:
+  #     - name: srv-api
+  #       group: destinations
+  #       properties:
+  #         forwardAuthToken: true
+  #         name: srv-api
+  #         url: ~{srv-url}
 
-      - name: bookshopcap-auth
-      - name: bookshopcap-destination
-      - name: bookshopcap-html5-runtime
+  #     - name: bookshopcap-auth
+  #     - name: bookshopcap-destination
+  #     - name: bookshopcap-html5-runtime
 
-    provides:
-      - name: app-api
-        properties:
-          app-protocol: ${protocol}
-          app-uri: ${default-uri}
+  #   provides:
+  #     - name: app-api
+  #       properties:
+  #         app-protocol: ${protocol}
+  #         app-uri: ${default-uri}
 
-    parameters:
-      disk-quota: 256M
-      keep-existing-routes: true
-      memory: 128M
+  #   parameters:
+  #     disk-quota: 256M
+  #     keep-existing-routes: true
+  #     memory: 128M
 
 
 
@@ -205,8 +205,8 @@ resources:
       # need to check 
       config:
         oauth2-configuration:
-          redirect-uris:
-            - https://*~{app-api/app-uri}/**
+          # redirect-uris:
+          #   - https://*~{app-api/app-uri}/**
         tenant-mode: dedicated
         xsappname: bookshopcap-${org}-${space}
         # End
@@ -215,8 +215,8 @@ resources:
       service: xsuaa
       service-plan: application  
     # 
-    requires:
-      - name: app-api
+    # requires:
+    #   - name: app-api
     # 
 
 
