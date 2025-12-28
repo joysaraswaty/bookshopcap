@@ -93,7 +93,8 @@ modules:
       build-result: app/
       requires:
         - artifacts:
-            - librarybookshop.zip
+            # - librarybookshop.zip
+            - bookshopcap.librarybookshop.zip 
           name: librarybookshop
           target-path: app/
 
