@@ -21,7 +21,7 @@
 #         # additionalFiles:
 #         #   - xs-app.json
 
-specVersion: "2.6"
+specVersion: "4.0"
 metadata:
   name: bookshopcap.librarybookshop
 type: application
